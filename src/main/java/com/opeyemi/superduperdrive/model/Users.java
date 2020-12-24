@@ -19,7 +19,8 @@ public class Users {
     //Getters and Setters;
 
 
-    public Users(String username, String salt, String password, String firstName, String lastName) {
+    public Users(Integer userId, String username, String salt, String password, String firstName, String lastName) {
+        this.userId = userId;
         this.username = username;
         this.salt = salt;
         this.password = password;
