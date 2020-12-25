@@ -14,7 +14,8 @@ public class Files {
 
     private byte[] fileData;
 
-    public Files(String fileName, String contentType, String fileSize, Integer userId, byte[] fileData) {
+    public Files(Integer fileId, String fileName, String contentType, String fileSize, Integer userId, byte[] fileData) {
+        this.fileId = fileId;
         this.fileName = fileName;
         this.contentType = contentType;
         this.fileSize = fileSize;
