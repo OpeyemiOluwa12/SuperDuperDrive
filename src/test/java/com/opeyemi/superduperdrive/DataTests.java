@@ -22,7 +22,7 @@ public class DataTests {
     @Autowired
     HashService hashService;
 
-
+    @Test
     public void testUserInsertFunction() {
         String username = "OpeyemiOluwa2";
         String password = "ayanfe";
