@@ -1,10 +1,7 @@
 package com.opeyemi.superduperdrive.mapper;
 
 import com.opeyemi.superduperdrive.model.Files;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -17,4 +14,10 @@ public interface FilesMapper {
 
     @Select("SELECT * FROM FILES WHERE userid = #{userId}")
     List<Files> getFilesByUserId(int userId);
+
+    @Delete("DELETE FROM FILES WHERE fileid = #{fileId}")
+    int delete(int fileId);
+
+    @Select("SELECT * FROM FILES WHERE fileid = #{fileId}")
+    Files getFileByFileId(int fileId);
 }
