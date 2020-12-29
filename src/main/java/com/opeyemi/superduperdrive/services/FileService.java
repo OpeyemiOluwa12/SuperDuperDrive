@@ -35,4 +35,16 @@ public class FileService {
     public List<Files> getAllFiles(int userId) {
         return filesMapper.getFilesByUserId(userId);
     }
+
+    public int deleteFile(int fileId) {
+        return filesMapper.delete(fileId);
+    }
+
+    public Files getSingleFile(int fileId) {
+        return filesMapper.getFileByFileId(fileId);
+    }
+
+    public boolean isFileNameAvailable(int fileId){
+        return filesMapper.getFileByFileId(fileId) !=null;
+    }
 }

@@ -5,6 +5,12 @@ import com.opeyemi.superduperdrive.model.Users;
 import com.opeyemi.superduperdrive.services.CommonService;
 import com.opeyemi.superduperdrive.services.FileService;
 import com.opeyemi.superduperdrive.services.UserService;
+import org.apache.ibatis.annotations.Delete;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,6 +50,29 @@ public class HomeController {
         return fileService.getAllFiles(commonService.getUserId());
     }
 
+    @GetMapping("/delete-file/{fileId}")
+    public String deleteFile(@PathVariable int fileId) {
+        int rowsRemoved = fileService.deleteFile(fileId);
+        System.out.println(rowsRemoved);
+        return "redirect:/home";
+    }
+
+    @GetMapping("/download/{fileId}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable int fileId) {
+        Files files = fileService.getSingleFile(fileId);
+        ByteArrayResource resource = new ByteArrayResource(files.getFileData());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(Long.parseLong(files.getFileSize()))
+                .contentType(MediaType.valueOf(files.getContentType()))
+                .body(resource);
+    }
 
 
 }
