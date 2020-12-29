@@ -1,22 +1,20 @@
 package com.opeyemi.superduperdrive.controller;
 
 import com.opeyemi.superduperdrive.model.Files;
-import com.opeyemi.superduperdrive.model.Users;
 import com.opeyemi.superduperdrive.services.CommonService;
 import com.opeyemi.superduperdrive.services.FileService;
 import com.opeyemi.superduperdrive.services.UserService;
-import org.apache.ibatis.annotations.Delete;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Controller
@@ -34,15 +32,39 @@ public class HomeController {
 
     @GetMapping
     public String home() {
-        return "/home";
+        return "home";
     }
 
     @PostMapping("/file-upload")
     public String uploadFile(@RequestParam("fileUpload") MultipartFile file, Model model) {
-        model.addAttribute("file", file);
-        int rowsAdded = fileService.uploadFiles(file, commonService.getUserId());
-//TODO add conditions
-        return "redirect:/home";
+        String fileUploadError = null;
+        int fileLength = 0;
+        try {
+            fileLength = file.getBytes().length;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (fileLength < 1) {
+            fileUploadError = "You cannot upload an empty file";
+        }
+
+        if ( fileUploadError == null && fileService.isFileNameAvailable(file.getOriginalFilename())) {
+            fileUploadError = "You can not upload a file that has been uploaded before";
+        }
+        if (fileUploadError == null) {
+            int rowsAdded = fileService.uploadFiles(file, commonService.getUserId());
+            if (rowsAdded < 0) {
+                fileUploadError = "File upload error occurred please try again";
+            }
+        }
+        if (fileUploadError == null) {
+            model.addAttribute("fileUploadSuccess", file);
+        } else {
+            model.addAttribute("fileUploadError", fileUploadError);
+        }
+
+        return "result";
     }
 
     @ModelAttribute("files")
@@ -54,7 +76,7 @@ public class HomeController {
     public String deleteFile(@PathVariable int fileId) {
         int rowsRemoved = fileService.deleteFile(fileId);
         System.out.println(rowsRemoved);
-        return "redirect:/home";
+        return "home";
     }
 
     @GetMapping("/download/{fileId}")
