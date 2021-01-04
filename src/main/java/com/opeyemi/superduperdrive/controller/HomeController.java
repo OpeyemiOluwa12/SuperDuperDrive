@@ -1,9 +1,9 @@
 package com.opeyemi.superduperdrive.controller;
 
+import com.opeyemi.superduperdrive.model.Credentials;
 import com.opeyemi.superduperdrive.model.Files;
-import com.opeyemi.superduperdrive.services.CommonService;
-import com.opeyemi.superduperdrive.services.FileService;
-import com.opeyemi.superduperdrive.services.UserService;
+import com.opeyemi.superduperdrive.model.Notes;
+import com.opeyemi.superduperdrive.services.*;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -21,11 +21,15 @@ import java.util.List;
 @RequestMapping("/home")
 public class HomeController {
     private final FileService fileService;
+    private final NoteService noteService;
+    private final CredentialService credentialService;
     private final UserService userService;
     private final CommonService commonService;
 
-    public HomeController(FileService fileService, UserService userService, CommonService commonService) {
+    public HomeController(FileService fileService, NoteService noteService, CredentialService credentialService, UserService userService, CommonService commonService) {
         this.fileService = fileService;
+        this.noteService = noteService;
+        this.credentialService = credentialService;
         this.userService = userService;
         this.commonService = commonService;
     }
@@ -49,7 +53,7 @@ public class HomeController {
             fileUploadError = "You cannot upload an empty file";
         }
 
-        if ( fileUploadError == null && fileService.isFileNameAvailable(file.getOriginalFilename())) {
+        if (fileUploadError == null && fileService.isFileNameAvailable(file.getOriginalFilename())) {
             fileUploadError = "You can not upload a file that has been uploaded before";
         }
         if (fileUploadError == null) {
@@ -75,8 +79,7 @@ public class HomeController {
     @GetMapping("/delete-file/{fileId}")
     public String deleteFile(@PathVariable int fileId) {
         int rowsRemoved = fileService.deleteFile(fileId);
-        System.out.println(rowsRemoved);
-        return "home";
+        return "redirect:/home";
     }
 
     @GetMapping("/download/{fileId}")
@@ -96,5 +99,50 @@ public class HomeController {
                 .body(resource);
     }
 
+    @ModelAttribute("notes")
+    public List<Notes> notes() {
+        return noteService.getAllNotes(commonService.getUserId());
+    }
 
+    @PostMapping("/note")
+    public String saveNote(@ModelAttribute("noteForm") Notes notes, Model model) {
+        notes.setUserId(commonService.getUserId());
+        if (notes.getNoteId() == null) {
+            noteService.addNote(notes);
+        } else {
+            noteService.updateNotes(notes);
+        }
+        model.addAttribute("notes", noteService.getAllNotes(commonService.getUserId()));
+        return "home";
+    }
+
+    @GetMapping("/delete-note/{noteId}")
+    public String deleteNote(@PathVariable int noteId) {
+        int rowsRemoved = noteService.deleteNote(noteId);
+        return "redirect:/home";
+    }
+
+
+    @ModelAttribute("credentials")
+    public List<Credentials> credentials() {
+        return credentialService.getAllCredentials(commonService.getUserId());
+    }
+
+    @PostMapping("/credentials")
+    public String saveCredential(@ModelAttribute("credentialForm") Credentials credentials, Model model) {
+        credentials.setUserId(commonService.getUserId());
+        if (credentials.getCredentialId() == null) {
+            credentialService.addCredential(credentials);
+        } else {
+            credentialService.updateCredential(credentials);
+        }
+        model.addAttribute("credentials", credentialService.getAllCredentials(commonService.getUserId()));
+        return "home";
+    }
+
+    @GetMapping("/delete-credential/{credentialId}")
+    public String deleteCredential(@PathVariable int credentialId) {
+        int rowsRemoved = credentialService.deleteCredential(credentialId);
+        return "redirect:/home";
+    }
 }

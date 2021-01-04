@@ -1,10 +1,9 @@
 package com.opeyemi.superduperdrive.mapper;
 
 import com.opeyemi.superduperdrive.model.Notes;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
+
+import java.util.List;
 
 @Mapper
 public interface NotesMapper {
@@ -14,5 +13,11 @@ public interface NotesMapper {
     void insert(Notes notes);
 
     @Select("SELECT * FROM NOTES WHERE userid= #{userId}")
-    Notes getNoteByUserId(int userId);
+    List<Notes> getAllNotesByUserId(int userId);
+
+    @Delete("DELETE FROM NOTES WHERE noteid = #{noteId}")
+    int delete(int noteId);
+
+    @Update("UPDATE NOTES SET notetitle = #{noteTitle}, notedescription = #{noteDescription} WHERE noteid = #{noteId} AND userid = #{userId}")
+    void update(Notes notes);
 }
