@@ -25,17 +25,21 @@ public class HomeController {
     private final CredentialService credentialService;
     private final UserService userService;
     private final CommonService commonService;
+    private final EncryptionService encryptionService;
 
-    public HomeController(FileService fileService, NoteService noteService, CredentialService credentialService, UserService userService, CommonService commonService) {
+    public HomeController(FileService fileService, NoteService noteService, CredentialService credentialService, UserService userService,
+                          CommonService commonService, EncryptionService encryptionService) {
         this.fileService = fileService;
         this.noteService = noteService;
         this.credentialService = credentialService;
         this.userService = userService;
         this.commonService = commonService;
+        this.encryptionService = encryptionService;
     }
 
     @GetMapping
-    public String home() {
+    public String home(Model model) {
+        model.addAttribute("encryptionService", encryptionService);
         return "home";
     }
 
@@ -113,7 +117,7 @@ public class HomeController {
             noteService.updateNotes(notes);
         }
         model.addAttribute("notes", noteService.getAllNotes(commonService.getUserId()));
-        return "home";
+        return "redirect:/home";
     }
 
     @GetMapping("/delete-note/{noteId}")
@@ -137,7 +141,7 @@ public class HomeController {
             credentialService.updateCredential(credentials);
         }
         model.addAttribute("credentials", credentialService.getAllCredentials(commonService.getUserId()));
-        return "home";
+        return "redirect:/home";
     }
 
     @GetMapping("/delete-credential/{credentialId}")
