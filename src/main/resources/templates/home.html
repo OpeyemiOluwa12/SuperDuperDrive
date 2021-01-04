@@ -112,7 +112,7 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <form action="#" method="POST" th:action="@{/home/note}" th:object="${noteForm}">
+                                <form action="#" method="POST" th:action="@{/home/note}" th:object="${notes}">
                                     <input type="hidden" name="noteId" id="note-id">
                                     <div class="form-group">
                                         <label for="note-title" class="col-form-label">Title</label>
@@ -154,10 +154,20 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="credential: ${credentials}">
+                        <tr th:if="${credentials.size() > 0}" th:each="credential: ${credentials}">
                             <td>
-                                <button type="button" class="btn btn-success">Edit</button>
-                                <a class="btn btn-danger">Delete</a>
+                                <button type="button" class="btn btn-success"
+                                        th:data-credentialId="${credential.getCredentialId()}"
+                                        th:data-credentialUrl="${credential.getUrl()}"
+                                        th:data-credentialUsername="${credential.getUsername()}"
+                                        th:data-credentialPassword="${encryptionService.decryptValue(credential.getPassword(), credential.getKey())}"
+                                        onclick="showCredentialModal(this.getAttribute('data-credentialId'),
+                                        this.getAttribute('data-credentialUrl'),
+                                        this.getAttribute('data-credentialUsername'),
+                                        this.getAttribute('data-credentialPassword'))"
+                                >Edit
+                                </button>
+                                <a class="btn btn-danger" th:href="@{/home/delete-credential/{credentialId}(credentialId = ${credential.getCredentialId()})}">Delete</a>
                             </td>
                             <th scope="row" th:text="${credential.getUrl()}">Example Credential URL</th>
                             <td th:text="${credential.getUsername()}">Example Credential Username</td>
